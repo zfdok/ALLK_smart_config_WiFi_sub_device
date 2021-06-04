@@ -13,6 +13,7 @@ void codeForTask1(void *parameter)
 
 void setup()
 {
+  // rollback =1;
   hardware_init(); //硬件初始化
   software_init(); //软件初始化
   if (oledState == OLED_ON)
@@ -25,7 +26,6 @@ void setup()
     EEPROM.commit();
     Serial.println("OK");
     ESP.deepSleep(300000000);
-    // modem.sleepEnable();
   }
   else
   {
@@ -38,7 +38,8 @@ void setup()
                             &task1,       //用于传回创建任务的句柄,
                             0);           //用哪个核执行
     get_eeprom_firstBootFlag();           //获取EEPROM第1位,判断是否是初次开机
-    // alFFS_init();                         //初始化FFS
+    EEPROM.writeInt(2, 30000000);
+    EEPROM.commit();
     eeprom_config_init(); //初始化EEPROM
     if (!WiFi.isConnected())
     {
@@ -68,7 +69,7 @@ void loop()
       screenState = MAIN_TEMP_SCREEN;
     }
   }
-  if (millis() - OneNet_connected_Time > 60000000)
+  if (millis() - OneNet_connected_Time > 60000)
   {
     if (!client.connected())
     {
@@ -76,10 +77,11 @@ void loop()
       client.setServer(mqtt_server, port); //设置客户端连接的服务器,连接Onenet服务器, 使用6002端口
       if (client.connect(mqtt_devid, mqtt_pubid, mqtt_password))
       {
-        Serial.println("OneNet connected check");
+        Serial.println("OneNet connected checked");
         OneNet_connected_Time = millis();
       }
     }
+    delay(500);
   }
   if (oledState == OLED_ON && WiFi.isConnected())
   {
