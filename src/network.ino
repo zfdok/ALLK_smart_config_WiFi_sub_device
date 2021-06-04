@@ -38,6 +38,8 @@ void smartWifiConfig()
       Serial.printf("SSID:%s", WiFi.SSID().c_str());
       Serial.printf("PSW:%s", WiFi.psk().c_str());
       // break;
+      delay(500);
+      ESP.restart();
     }
   }
   screenState = MAIN_TEMP_SCREEN;
