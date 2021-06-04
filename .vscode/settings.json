@@ -1,0 +1,16 @@
+{
+  "files.associations": {
+    "*.cjson": "jsonc",
+    "*.wxss": "css",
+    "*.wxs": "javascript",
+    "ctime": "cpp",
+    "cmath": "cpp",
+    "*.tpp": "cpp",
+    "array": "cpp",
+    "deque": "cpp",
+    "string": "cpp",
+    "vector": "cpp",
+    "unordered_map": "cpp",
+    "typeinfo": "cpp"
+  }
+}
