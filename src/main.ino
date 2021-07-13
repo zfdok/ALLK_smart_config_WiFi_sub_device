@@ -38,8 +38,6 @@ void setup()
                             &task1,       //用于传回创建任务的句柄,
                             0);           //用哪个核执行
     get_eeprom_firstBootFlag();           //获取EEPROM第1位,判断是否是初次开机
-    EEPROM.writeInt(2, 30000000);
-    EEPROM.commit();
     eeprom_config_init(); //初始化EEPROM
     if (!WiFi.isConnected())
     {
@@ -91,6 +89,7 @@ void loop()
     screen_show(); //OLED最终显示
     send_Msg_var_GSM_while_OLED_on();
   }
+  client.loop();
 }
 
 void send_Msg_var_GSM_while_OLED_on()
@@ -119,7 +118,9 @@ void send_Msg_var_GSM_while_OLED_on()
       if (!WiFi.isConnected())
       {
         autoConfig_wifi(); //modem连接Wifi
-      }else{
+      }
+      else
+      {
         Serial.println("WIFI is connected check");
       }
 
@@ -134,10 +135,13 @@ void send_Msg_var_GSM_while_OLED_on()
       display.drawProgressBar(5, 50, 118, 8, 90);
       display.display();
       sht20getTempAndHumi(); //获取温湿度数据
-      if(!client.connected()){
+      if (!client.connected())
+      {
         onenet_connect();
         Serial.println("onenet_connecting...");
-      }else{
+      }
+      else
+      {
         Serial.println("onenet_connected check!!");
       }
       display.clear();
@@ -149,7 +153,10 @@ void send_Msg_var_GSM_while_OLED_on()
         snprintf(subscribeTopic, 75, topicTemplate, mqtt_pubid, mqtt_devid);
         client.subscribe(subscribeTopic); //订阅命令下发主题
         sendTempAndHumi();
-      }else{
+        getDesired();
+      }
+      else
+      {
         Serial.println("onenet_connecting. failed");
       }
       display.drawProgressBar(5, 50, 118, 8, 100);
@@ -161,7 +168,6 @@ void send_Msg_var_GSM_while_OLED_on()
       screen_loopEnabled = true;
       screen_On_Start = millis();
       screen_On_now = millis();
-      reduce_sleeptime = 0;
     }
   }
 }

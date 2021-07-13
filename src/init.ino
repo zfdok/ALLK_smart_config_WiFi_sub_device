@@ -46,4 +46,7 @@ void software_init()
   qualifiedState = QUALITIFY_RIGHT;
   screenState = WIFI_CONNECT_SCREEN;
   OneNet_connected_Time = millis() - 70000000;
+  tempUA = 0;              //温度上限报警计数
+  tempLA = 0;              //温度下限报警计数
+  rec_count = 0;
 }

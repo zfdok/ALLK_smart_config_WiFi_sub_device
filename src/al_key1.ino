@@ -95,6 +95,7 @@ void key_loop()
     {
       if (workingState == NOT_WORKING)
       {
+        rec_count = 0;
         screen_loopEnabled = false;
         screenState = REC_START_SCREEN;
         workingState = WORKING;

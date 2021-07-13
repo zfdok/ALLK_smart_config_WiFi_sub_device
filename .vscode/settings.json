@@ -11,6 +11,8 @@
     "string": "cpp",
     "vector": "cpp",
     "unordered_map": "cpp",
-    "typeinfo": "cpp"
+    "typeinfo": "cpp",
+    "sstream": "cpp",
+    "random": "cpp"
   }
 }

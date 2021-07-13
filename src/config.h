@@ -4,11 +4,7 @@
 #include <esp_sleep.h>
 #include "Wire.h"
 #include "uFire_SHT20.h"
-// #define TINY_GSM_MODEM_SIM800 // Modem is SIM800
-//引入TinyGSM库. 在引入之前要定义好TINY_GSM_MODEM_SIM800,让它知道我们用的模块型号
-// #include <TinyGsmClient.h>
 #include "PubSubClient.h"
-// #include "SPIFFS.h"
 #include "EEPROM.h"
 #include "SH1106Wire.h"
 #include "images.h"
@@ -18,22 +14,19 @@
 #include "HTTPClient.h"
 #include "ArduinoJson.h"
 
-
 HTTPClient http_client;
 String time_req = "http://quan.suning.com/getSysTime.do";
 String time_rsp;
 DynamicJsonDocument doc(512);
 RTC_Millis rtc;
 /*-------------------------------WIFI定义----------------------------------*/
-// const char *ssid = "anlengkj";              //wifi名
-// const char *password = "al77776666";      //wifi密码
-WiFiClient espClient;  
+WiFiClient espClient;
 PubSubClient client(espClient);
 
 /*-------------------------------其他硬件定义-------------------------------------*/
 #define SerialMon Serial      //调试串口为UART0
 #define SerialAT Serial1      //AT串口为UART1
-#define KEY1 14                //按键1对应引脚
+#define KEY1 14               //按键1对应引脚
 #define WEAKUPKEY1 GPIO_NUM_4 //按键1对应引脚
 
 /*-------------------------------显示/按键相关定义-------------------------------------*/
@@ -79,21 +72,22 @@ RTC_DATA_ATTR int oledState;           //OLED工作状态机
 RTC_DATA_ATTR int screenState;         //屏幕状态机
 RTC_DATA_ATTR bool screen_loopEnabled; //是否允许滚屏
 RTC_DATA_ATTR int current_rec_State;   //当前记录状态机 (正在开始记录,正在持续记录,正在停止记录)
-time_t loopStartTime;                  //计算主屏幕滚屏的起始时间
-time_t loopnowTime;                    //计算主屏幕滚屏的当前时间
-time_t looptimeSpan;                   //计算滚屏间隔时间
-time_t keyScreen_Start;                //计算按键触发的当前屏的起始时间
-time_t keyScreen_Now;                  //计算当前屏的当前时间
-time_t screen_On_Start;                //计算息屏的亮屏起点
-time_t screen_On_now;                  //计算息屏的当前时间
-time_t screen_On_last_span;            //亮屏时间间隔
-time_t screen_Off_to_sleep_span;       //息屏到休眠时间间隔
-time_t show_tip_screen_last;           //提示界面自动返回的时间
-time_t show_BLE_screen_last;           //蓝牙界面自动返回的时间
-time_t show_rec_stop_screen_last;      //停止测量界面自动返回的时间
-time_t last_rec_stamp;                 //上次记录时间
-time_t now_rec_stamp;                  //计算现在记录时间
-time_t OneNet_connected_Time;          //onenet连接时间
+
+time_t loopStartTime;             //计算主屏幕滚屏的起始时间
+time_t loopnowTime;               //计算主屏幕滚屏的当前时间
+time_t looptimeSpan;              //计算滚屏间隔时间
+time_t keyScreen_Start;           //计算按键触发的当前屏的起始时间
+time_t keyScreen_Now;             //计算当前屏的当前时间
+time_t screen_On_Start;           //计算息屏的亮屏起点
+time_t screen_On_now;             //计算息屏的当前时间
+time_t screen_On_last_span;       //亮屏时间间隔
+time_t screen_Off_to_sleep_span;  //息屏到休眠时间间隔
+time_t show_tip_screen_last;      //提示界面自动返回的时间
+time_t show_BLE_screen_last;      //蓝牙界面自动返回的时间
+time_t show_rec_stop_screen_last; //停止测量界面自动返回的时间
+time_t last_rec_stamp;            //上次记录时间
+time_t now_rec_stamp;             //计算现在记录时间
+time_t OneNet_connected_Time;     //onenet连接时间
 
 /*-------------------------------出厂设置定义-------------------------------------*/
 #define FACTORY_SLEEPTIME 300000000    //休眠时间
@@ -106,12 +100,12 @@ time_t OneNet_connected_Time;          //onenet连接时间
 #define FACTORY_TIME_HOUR 0            //出厂默认时间
 #define FACTORY_TIME_MIN 0             //出厂默认时间
 
-const char *mqtt_server = "218.201.45.7";  //onenet 的 IP地址
-const int port = 1883;                     //端口号
-#define mqtt_devid "al00002lk0001"    //设备ID
-#define mqtt_pubid "Ygy2xf0iYx"            //产品ID
+const char *mqtt_server = "218.201.45.7"; //onenet 的 IP地址
+const int port = 1883;                    //端口号
+#define mqtt_devid "al00002lk0004"        //设备ID
+#define mqtt_pubid "Ygy2xf0iYx"           //产品ID
 //鉴权信息
-#define mqtt_password "version=2018-10-31&res=products%2FYgy2xf0iYx%2Fdevices%2Fal00002lk0001&et=4092599349&method=md5&sign=mVUuvaUxVfVDjUJvJxya8g%3D%3D"
+#define mqtt_password "version=2018-10-31&res=products%2FYgy2xf0iYx%2Fdevices%2Fal00002lk0004&et=4083930061&method=md5&sign=LF58PMK3%2FRgB8n9CLVuhfA%3D%3D"
 
 /*-------------------------------公共变量,参数定义-------------------------------------*/
 //温湿度采集相关
@@ -137,12 +131,14 @@ RTC_DATA_ATTR int qualifiedState; //合格状态机
 RTC_DATA_ATTR bool tempLimit_enable;                 //温度上下限报警开关
 RTC_DATA_ATTR float tempUpperLimit;                  //温度上限设定
 RTC_DATA_ATTR float tempLowerLimit;                  //温度下限设定
+RTC_DATA_ATTR long tempUA;                        //温度上限报警计数
+RTC_DATA_ATTR long tempLA;                        //温度下限报警计数
 RTC_DATA_ATTR time_t sleeptime;                      //休眠时间
-RTC_DATA_ATTR time_t reduce_sleeptime;               //缩减休眠时间
 RTC_DATA_ATTR time_t sleep_start_time;               //休眠开始时间
 RTC_DATA_ATTR time_t sleep_end_time;                 //休眠结束时间
 RTC_DATA_ATTR time_t sleep_time_count;               //休眠时长时间
 RTC_DATA_ATTR int postMsgId = 0;                     //记录已经post了多少条
+RTC_DATA_ATTR int rec_count = 0;                     //记录已经上传了多少条
 RTC_DATA_ATTR float locationE, locationN, locationA; //地理位置,经度纬度
 RTC_DATA_ATTR int timeNow_Y, timeNow_M, timeNow_D, timeNow_h, timeNow_m, timeNow_s;
 RTC_DATA_ATTR int timeLastNTP_Y, timeLastNTP_M, timeLastNTP_D, timeLastNTP_h, timeLastNTP_m, timeLastNTP_s;
@@ -181,25 +177,26 @@ void getLBSLocation();
 //接收设备属性获取命令成功的回复主题
 #define ONENET_TOPIC_PROP_GET_REPLY "$sys/" mqtt_pubid "/" mqtt_devid "/thing/property/get_reply"
 
+//设备期望值获取请求主题
+#define ONENET_TOPIC_DESIRED_GET "$sys/" mqtt_pubid "/" mqtt_devid "/thing/property/desired/get"
+//设备期望值获取响应主题
+#define ONENET_TOPIC_DESIRED_GET_RE "$sys/" mqtt_pubid "/" mqtt_devid "/thing/property/desired/get/reply"
+
+//设备期望值删除请求主题
+#define ONENET_TOPIC_DESIRED_DEL "$sys/" mqtt_pubid "/" mqtt_devid "/thing/property/desired/delete"
+//设备期望值删除响应主题
+#define ONENET_TOPIC_DESIRED_DEL_RE "$sys/" mqtt_pubid "/" mqtt_devid "/thing/property/desired/delete/reply"
+
 //这是post上传数据使用的模板
 #define ONENET_POST_BODY_FORMAT "{\"id\":\"1\",\"params\":%s}"
 
-
-
 void onenet_connect();
 void sendTempAndHumi();
-/*-------------------------------休眠服务相关al_sleep.ino---------------------*/
-// void go_sleep_a_while_with_ext0();
-
-/*--------------------------------eeprom相关函数--------------------*/
+void getDesired();
+/*********************************eeprom相关函数********************/
 void get_eeprom_firstBootFlag();
 void eeprom_config_init();
-void eeprom_config_set_sleeptime(time_t time1);
-// /*********************************SPIFFS相关函数 al_FFS.ino**********/
-// void alFFS_init();
-// void alFFS_addRec();
-// void alFFS_readRecing();
-// void alFFS_endRec();
+void eeprom_config_set(bool tempLimit_enable, int time1, float tempUpperLimit, float tempLowerLimit);
 /*********************************显示屏相关函数 al_oled.ino**********/
 void showWelcome();
 void screen_loop();
@@ -214,5 +211,4 @@ void send_Msg_var_GSM_while_OLED_on();
 void key_init();
 void key_loop();
 void key_attach_null();
-// void oledoff_upload_but_click();
 #endif // CONFIG_H

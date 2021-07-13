@@ -39,7 +39,7 @@ void eeprom_config_init()
   {
     Serial.println("this is the first load,begin to write default:");
     EEPROM.write(1, 1);
-    EEPROM.writeInt(2, FACTORY_SLEEPTIME);
+    EEPROM.writeULong(2, FACTORY_SLEEPTIME);
     EEPROM.write(10, FACTORY_TEMP_LIMIT_ENABLE);
     EEPROM.writeFloat(11, FACTORY_TEMP_UPPER_LIMIT);
     EEPROM.writeFloat(15, FACTORY_TEMP_LOWER_LIMIT);
@@ -72,11 +72,17 @@ void eeprom_config_init()
     Serial.printf("wakeup at : %d:%d:%d\r\n", rtc.now().hour(), rtc.now().minute(), rtc.now().second());
     Serial.printf("time now: %d-%d-%d %d:%d\r\n", rtc.now().year(), rtc.now().month(), rtc.now().day(), rtc.now().hour(), rtc.now().minute());
     Serial.println(now_unixtime);
+    tempLimit_enable = (bool)EEPROM.read(10);
+    Serial.printf("tempLimit_enable:%d\r\n", tempLimit_enable);
   }
 }
 
-void eeprom_config_set_sleeptime(time_t time1)
+void eeprom_config_set(bool tempLimit_enable, uint32_t time1, float tempUpperLimit, float tempLowerLimit)
 {
-  EEPROM.writeInt(2, time1);
+  EEPROM.writeULong(2, time1);
+  EEPROM.write(10, tempLimit_enable);
+  EEPROM.writeFloat(11, tempUpperLimit);
+  EEPROM.writeFloat(15, tempLowerLimit);
   EEPROM.commit();
+  Serial.println("EEPROM.done!");
 }

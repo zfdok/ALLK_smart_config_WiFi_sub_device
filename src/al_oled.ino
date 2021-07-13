@@ -40,12 +40,14 @@ void showStatusBar()
   char timestr[20];
   snprintf(timestr, 20, "%02d:%02d:%02d", rtc.now().hour(), rtc.now().minute(), rtc.now().second());
   display.drawString(64, 0, timestr);
-  display.drawIco16x16(112, 0, F16x16_b60);
+  display.drawIco16x16(112, 0, F16x16_b100);
   display.drawHorizontalLine(0, 16, 128);
   display.drawHorizontalLine(0, 53, 128);
   display.setFont(Dialog_plain_8);
   display.drawString(0, 56, "REC:");
-  display.drawString(20, 56, "121231");
+  char rec_str[10];
+  sprintf(rec_str,"%d",rec_count);
+  display.drawString(20, 56, rec_str);
   char datestr[20];
   snprintf(datestr, 20, "%d-%d-%d", rtc.now().year(), rtc.now().month(), rtc.now().day());
   display.drawString(78, 56, datestr);
