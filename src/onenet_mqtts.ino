@@ -16,13 +16,28 @@ void sendTempAndHumi()
     //先拼接出json字符串
     char param[178];
     char jsonBuf[256];
-    if (current_rec_State == START_RECING)
+    Serial.println("tempLimit_enable");
+    Serial.println(tempLimit_enable);
+    Serial.println("tempUpperLimit");
+    Serial.println(tempUpperLimit);
+    Serial.println("tempLowerLimit");
+    Serial.println(tempLowerLimit);
+    if (tempLimit_enable)
     {
-      sprintf(param, "{\"temp\":{\"value\":%.2f},\"humi\":{\"value\":%.2f}}", currentTemp, currentHumi); //我们把要上传的数据写在param里
+      (tempUpperLimit < currentTemp) ? tempUA++ : tempUA = 0;
+      (tempLowerLimit > currentTemp) ? tempLA++ : tempLA = 0;
     }
     else
     {
-      sprintf(param, "{\"temp\":{\"value\":%.2f},\"humi\":{\"value\":%.2f}}", currentTemp, currentHumi); //我们把要上传的数据写在param里
+      tempUA = tempLA = 0;
+    }
+    if (current_rec_State == START_RECING)
+    {
+      sprintf(param, "{\"temp\":{\"value\":%.2f},\"humi\":{\"value\":%.2f},\"start_time\":{\"value\":%u000},\"tempUA\":{\"value\":%ld},\"tempLA\":{\"value\":%ld}}", currentTemp, currentHumi, now_unixtime, tempUA, tempLA); //我们把要上传的数据写在param里
+    }
+    else
+    {
+      sprintf(param, "{\"temp\":{\"value\":%.2f},\"humi\":{\"value\":%.2f},\"last_time\":{\"value\":%u000},\"tempUA\":{\"value\":%ld},\"tempLA\":{\"value\":%ld}}", currentTemp, currentHumi, now_unixtime, tempUA, tempLA); //我们把要上传的数据写在param里
     }
     sprintf(jsonBuf, ONENET_POST_BODY_FORMAT, param);
     //再从mqtt客户端中发布post消息
@@ -89,51 +104,51 @@ void callback(char *topic, byte *payload, unsigned int length)
     tempLimit_enable = setAlinkMsgObj["data"]["temp_alarm"]["value"];
     tempUpperLimit = setAlinkMsgObj["data"]["tempU"]["value"];
     tempLowerLimit = setAlinkMsgObj["data"]["tempL"]["value"];
-    sleeptime = ((int)setAlinkMsgObj["data"]["period"]["value"])*60000000;
-    eeprom_config_set(tempLimit_enable,(uint32_t)sleeptime,tempUpperLimit,tempLowerLimit);
+    sleeptime = ((int)setAlinkMsgObj["data"]["period"]["value"]) * 60000000;
+    eeprom_config_set(tempLimit_enable, (uint32_t)sleeptime, tempUpperLimit, tempLowerLimit);
 
-    if (tempLimit_enable)
-    {
-      if (tempUpperLimit < currentTemp || tempLowerLimit > currentTemp)
-      {
-        char param[178];
-        char jsonBuf[256];
-        if (tempUpperLimit < currentTemp)
-        {
-          sprintf(param, "{\"tempUA\":{\"value\":%ld}}", ++tempUA);
-        }
-        if (tempLowerLimit > currentTemp)
-        {
-          sprintf(param, "{\"tempLA\":{\"value\":%ld}}", ++tempLA);
-        }
-        sprintf(jsonBuf, ONENET_POST_BODY_FORMAT, param);
-        if (client.publish(ONENET_TOPIC_PROP_POST, jsonBuf))
-        {
-          Serial.print("Post message to cloud: ");
-          Serial.println(jsonBuf);
-        }
-        else
-        {
-          Serial.println("Publish message to cloud failed!");
-        }
-      }
-      else
-      {
-        tempUA = tempLA = 0;
-        char aparam[178];
-        char ajsonBuf[256];
-        sprintf(aparam, "{\"tempLA\":{\"value\":%d},\"tempUA\":{\"value\":%d}}", 0, 0);
-        sprintf(ajsonBuf, ONENET_POST_BODY_FORMAT, aparam);
-        if (client.publish(ONENET_TOPIC_PROP_POST, ajsonBuf))
-        {
-          Serial.print("Post message to cloud: ");
-          Serial.println(ajsonBuf);
-        }
-        else
-        {
-          Serial.println("Publish message to cloud failed!");
-        }
-      }
-    }
+    // if (tempLimit_enable)
+    // {
+    //   if (tempUpperLimit < currentTemp || tempLowerLimit > currentTemp)
+    //   {
+    //     char param[178];
+    //     char jsonBuf[256];
+    //     if (tempUpperLimit < currentTemp)
+    //     {
+    //       sprintf(param, "{\"tempUA\":{\"value\":%ld}}", ++tempUA);
+    //     }
+    //     if (tempLowerLimit > currentTemp)
+    //     {
+    //       sprintf(param, "{\"tempLA\":{\"value\":%ld}}", ++tempLA);
+    //     }
+    //     sprintf(jsonBuf, ONENET_POST_BODY_FORMAT, param);
+    //     if (client.publish(ONENET_TOPIC_PROP_POST, jsonBuf))
+    //     {
+    //       Serial.print("Post message to cloud: ");
+    //       Serial.println(jsonBuf);
+    //     }
+    //     else
+    //     {
+    //       Serial.println("Publish message to cloud failed!");
+    //     }
+    //   }
+    //   else
+    //   {
+    //     tempUA = tempLA = 0;
+    //     char aparam[178];
+    //     char ajsonBuf[256];
+    //     sprintf(aparam, "{\"tempLA\":{\"value\":%d},\"tempUA\":{\"value\":%d}}", 0, 0);
+    //     sprintf(ajsonBuf, ONENET_POST_BODY_FORMAT, aparam);
+    //     if (client.publish(ONENET_TOPIC_PROP_POST, ajsonBuf))
+    //     {
+    //       Serial.print("Post message to cloud: ");
+    //       Serial.println(ajsonBuf);
+    //     }
+    //     else
+    //     {
+    //       Serial.println("Publish message to cloud failed!");
+    //     }
+    //   }
+    // }
   }
 }

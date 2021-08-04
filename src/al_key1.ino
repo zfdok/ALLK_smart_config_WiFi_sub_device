@@ -105,6 +105,7 @@ void key_loop()
         now_rec_stamp = millis();
         Serial.println("workingState = WORKING;");
         keyState = NOKEYDOWN;
+        tempUA = tempLA = 0;
       }
       else if (workingState == WORKING)
       {
@@ -112,11 +113,11 @@ void key_loop()
         screenState = REC_STOP_SCREEN;
         workingState = NOT_WORKING;
         current_rec_State = END_RECING;
-        // alFFS_endRec();
         Serial.println("workingState = NOT_WORKING;");
         keyScreen_Start = millis();
         keyScreen_Now = millis();
         keyState = NOKEYDOWN;
+        tempUA = tempLA = 0;
       }
     }
     keyState = NOKEYDOWN; //处理长按界面下的长按

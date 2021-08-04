@@ -152,8 +152,8 @@ void send_Msg_var_GSM_while_OLED_on()
         char topicTemplate[] = "$sys/%s/%s/cmd/request/#"; //信息模板
         snprintf(subscribeTopic, 75, topicTemplate, mqtt_pubid, mqtt_devid);
         client.subscribe(subscribeTopic); //订阅命令下发主题
-        sendTempAndHumi();
         getDesired();
+        sendTempAndHumi();
       }
       else
       {
